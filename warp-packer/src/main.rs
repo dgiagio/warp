@@ -25,7 +25,7 @@ const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const SUPPORTED_ARCHS: &[&str] = &["linux-x64", "windows-x64", "macos-x64"];
-const RUNNER_URL_TEMPLATE: &str = "https://s3.amazonaws.com/dgiagio-public/warp/$VERSION$/$ARCH$/warp-runner";
+const RUNNER_URL_TEMPLATE: &str = "https://github.com/dgiagio/warp/releases/download/v$VERSION$/$ARCH$.warp-runner";
 const RUNNER_MAGIC: &[u8] = b"tVQhhsFFlGGD3oWV4lEPST8I8FEPP54IM0q7daes4E1y3p2U2wlJRYmWmjPYfkhZ0PlT14Ls0j8fdDkoj33f2BlRJavLj3mWGibJsGt5uLAtrCDtvxikZ8UX2mQDCrgE\0";
 
 /// Print a message to stderr and exit with error code 1
