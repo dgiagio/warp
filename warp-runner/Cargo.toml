@@ -1,0 +1,13 @@
+[package]
+name = "warp-runner"
+version = "0.1.0"
+authors = ["Diego"]
+
+[dependencies]
+memmem = "0.1.1"
+flate2 = "1.0"
+tar = "0.4"
+dirs = "1.0.4"
+winapi = "0.3.6"
+log = "0.4.5"
+simple_logger = "1.0.1"

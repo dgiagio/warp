@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RUST_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-packer/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-packer/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-packer/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-packer/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-runner/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-runner/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-runner/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/warp-runner/benches" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/warp-packer/target" />
+      <excludeFolder url="file://$MODULE_DIR$/warp-runner/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
