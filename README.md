@@ -151,8 +151,8 @@ PS C:\Users\Diego\Devel\myapp>
 **More information about your self-contained application**
 
 ```powershell
-PS C:\Users\Diego\Devel\myapp> "{0:N2} MB" -f ((Get-ChildItem .\bin\Release\netcoreapp2.1\win10-x64\publish -Recurse | Measure-Object -Property Length -Sum -ErrorAction Stop).Sum / 1MB)
-65.99 MB
+PS C:\Users\Diego\Devel\myapp> "{0:N2} MB" -f ((Get-Item myapp.exe).Length / 1MB)
+28.51 MB
 ```
 
 ## Quickstart with Java
