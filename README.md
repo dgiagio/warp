@@ -160,3 +160,9 @@ _In progress_
 
 ## How it works
 _In progress_
+
+## Authors
+- Diego Giagio `<diego@giagio.com>`
+
+## License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
