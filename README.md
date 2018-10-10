@@ -1,7 +1,7 @@
 # Warp
 Warp lets you create self-contained single binary applications making it simpler and more ergonomic to deliver your application to your customers. A self-contained binary is specially convenient when the technology you use, such as .NET Core, Java and others, contain many dependencies that must be shipped alongside your application.
 
-Warp is supported on Linux, Windows and macOS.
+Warp is written in Rust and is supported on Linux, Windows and macOS.
 
 ## Quickstart with .NET Core
 ### Linux
