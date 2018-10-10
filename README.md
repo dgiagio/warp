@@ -169,7 +169,7 @@ The final self-contained single binary application consists of two parts: 1) run
 
 The extraction process only happens the first time the application is ran, or when the self-contained application binary is updated.
 
-`warp-packer` is a CLI application that's used to create the self-contained application binary by downloading the correct `warp-runner` for the chosen platform, compressing the target application and generating the final application.
+`warp-packer` is a CLI application that's used to create the self-contained application binary by downloading the matching `warp-runner` for the chosen platform, compressing the target application and its dependencies, and generating the final self-contained binary.
 
 ### Performance
 The performance characteristics of the generated self-contained application is roughly the same of original application, except for the first time it's ran as the target application and its dependencies have to be decompressed to a local cache.
