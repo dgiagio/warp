@@ -159,7 +159,25 @@ PS C:\Users\Diego\Devel\myapp> "{0:N2} MB" -f ((Get-Item myapp.exe).Length / 1MB
 _In progress_
 
 ## How it works
-_In progress_
+Warp is a multi-platform tool written in Rust and is comprised of two programs: `warp-runner` and `warp-packer`.
+
+The final self-contained single binary application consists of two parts: 1) runner and 2) the compressed target application executable and dependencies.
+
+<img src="https://image.ibb.co/bBe669/warp_app_binary.png" width="272">
+
+`warp-runner` is a stub application that knows how to find the compressed payload within its own binary, perform exraction to a local cache and execute the target application.
+
+The extraction process only happens the first time the application is ran, or when the self-contained application binary is updated.
+
+`warp-packer` is a CLI application that's used to create the self-contained application binary by downloading the correct `warp-runner` for the chosen platform, compressing the target application and generating the final application.
+
+### Performance
+The performance characteristics of the generated self-contained application is roughly the same of original application, except for the first time it's ran as the target application and its dependencies have to be decompressed to a local cache.
+
+### Cache location
+- Linux: `$HOME/.local/share/warp`
+- macOS: `$HOME/Library/Application Support/warp`
+- Windows: `%LOCALAPPDATA%\warp`
 
 ## Authors
 - Diego Giagio `<diego@giagio.com>`
