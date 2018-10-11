@@ -165,7 +165,7 @@ The final self-contained single binary application consists of two parts: 1) run
 
 <img src="https://image.ibb.co/bBe669/warp_app_binary.png" width="272">
 
-`warp-runner` is a stub application that knows how to find the compressed payload within its own binary, perform exraction to a local cache and execute the target application.
+`warp-runner` is a stub application that knows how to find the compressed payload within its own binary, perform extraction to a local cache and execute the target application.
 
 The extraction process only happens the first time the application is ran, or when the self-contained application binary is updated.
 
