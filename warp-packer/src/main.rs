@@ -42,6 +42,7 @@ fn runners_dir() -> PathBuf {
         .expect("No data local dir found")
         .join("warp")
         .join("runners")
+        .join(VERSION)
 }
 
 fn runner_url(arch: &str) -> String {
