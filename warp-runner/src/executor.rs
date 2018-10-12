@@ -16,9 +16,7 @@ pub fn execute(path: &Path, prog: &str) {
         _ => path_str
     };
 
-    let mut args: Vec<String> = env::args().collect();
-    args[0] = prog.to_owned();
-
+    let args: Vec<String> = env::args().skip(1).collect();
     trace!("PATH={:?} prog={:?} args={:?}", path_env, prog, args);
     Command::new(prog)
         .env("PATH", path_env)
