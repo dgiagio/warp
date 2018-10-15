@@ -16,7 +16,6 @@ use std::io;
 use std::error::Error;
 use std::io::Write;
 use std::io::Read;
-use std::fs::Metadata;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 
@@ -46,11 +45,7 @@ fn runners_dir() -> PathBuf {
 }
 
 fn runner_url(arch: &str) -> String {
-    let mut ext = "";
-    if cfg!(target_family = "windows") {
-        ext = ".exe";
-    }
-
+    let ext = if cfg!(target_family = "windows") { ".exe" } else { "" };
     RUNNER_URL_TEMPLATE
         .replace("$VERSION$", VERSION)
         .replace("$ARCH$", arch) + ext
@@ -89,22 +84,6 @@ fn patch_runner(runner_exec: &Path, new_runner_exec: &Path, exec_name: &str) -> 
         .write_all(&buf)?;
 
     Ok(())
-}
-
-#[cfg(target_family = "windows")]
-fn is_executable(path: &Path, _: &Metadata) -> bool {
-    if let Some(ext) = path.extension() {
-        ext == "exe"
-    } else {
-        false
-    }
-}
-
-#[cfg(target_family = "unix")]
-fn is_executable(_: &Path, metadata: &Metadata) -> bool {
-    use std::os::unix::fs::PermissionsExt;
-    const S_IXUSR: u32 = 0o100;
-    return metadata.permissions().mode() & S_IXUSR == S_IXUSR
 }
 
 fn create_tgz(dir: &Path, out: &Path) -> io::Result<()> {
@@ -182,11 +161,11 @@ fn main() -> Result<(), Box<Error>> {
     let exec_path = Path::new(input_dir).join(exec_name);
     match fs::metadata(&exec_path) {
         Err(_) => {
-            bail!("Cannot find executable {} inside directory {:?}", exec_name, input_dir);
+            bail!("Cannot find file {:?}", exec_path);
         },
         Ok(metadata) => {
-            if !is_executable(&exec_path, &metadata) {
-                bail!("File {} inside directory {:?} isn't executable", exec_name, input_dir);
+            if !metadata.is_file() {
+                bail!("{:?} isn't a file", exec_path);
             }
         }
     }
