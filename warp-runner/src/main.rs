@@ -1,40 +1,40 @@
 extern crate dirs;
-
 #[macro_use]
 extern crate log;
 extern crate simple_logger;
 
+use log::Level;
 use std::env;
 use std::error::Error;
 use std::ffi::*;
 use std::fs;
 use std::io;
 use std::path::*;
-use log::Level;
+use std::process;
 
 mod extractor;
 mod executor;
 
-static PROG_BUF: &'static [u8] = b"tVQhhsFFlGGD3oWV4lEPST8I8FEPP54IM0q7daes4E1y3p2U2wlJRYmWmjPYfkhZ0PlT14Ls0j8fdDkoj33f2BlRJavLj3mWGibJsGt5uLAtrCDtvxikZ8UX2mQDCrgE\0";
+static TARGET_FILE_NAME_BUF: &'static [u8] = b"tVQhhsFFlGGD3oWV4lEPST8I8FEPP54IM0q7daes4E1y3p2U2wlJRYmWmjPYfkhZ0PlT14Ls0j8fdDkoj33f2BlRJavLj3mWGibJsGt5uLAtrCDtvxikZ8UX2mQDCrgE\0";
 
-fn prog() -> &'static str {
-    let nul_pos = PROG_BUF.iter()
+fn target_file_name() -> &'static str {
+    let nul_pos = TARGET_FILE_NAME_BUF.iter()
         .position(|elem| *elem == b'\0')
-        .expect("PROG_BUF has no NUL terminator");
+        .expect("TARGET_FILE_NAME_BUF has no NUL terminator");
 
-    let slice = &PROG_BUF[..(nul_pos + 1)];
+    let slice = &TARGET_FILE_NAME_BUF[..(nul_pos + 1)];
     CStr::from_bytes_with_nul(slice)
-        .expect("Can't convert PROG_BUF slice to CStr")
+        .expect("Can't convert TARGET_FILE_NAME_BUF slice to CStr")
         .to_str()
-        .expect("Can't convert PROG_BUF CStr to str")
+        .expect("Can't convert TARGET_FILE_NAME_BUF CStr to str")
 }
 
-fn cache_path(prog: &str) -> PathBuf {
+fn cache_path(target: &str) -> PathBuf {
     dirs::data_local_dir()
         .expect("No data local dir found")
         .join("warp")
         .join("packages")
-        .join(prog)
+        .join(target)
 }
 
 fn extract(exe_path: &Path, cache_path: &Path) -> io::Result<()> {
@@ -48,26 +48,35 @@ fn main() -> Result<(), Box<Error>> {
         simple_logger::init_with_level(Level::Trace)?;
     }
 
-    let prog = prog();
-    let cache_path = cache_path(prog);
-    let exe_path = env::current_exe()?;
-    trace!("prog={:?}, cache_path={:?}, exe_path={:?}", prog, cache_path, exe_path);
+    let self_path = env::current_exe()?;
+    let self_file_name = self_path.file_name().unwrap();
+    let cache_path = cache_path(&self_file_name.to_string_lossy());
+
+    trace!("self_path={:?}", self_path);
+    trace!("self_file_name={:?}", self_file_name);
+    trace!("cache_path={:?}", cache_path);
+
+    let target_file_name = target_file_name();
+    let target_path = cache_path.join(target_file_name);
+
+    trace!("target_exec={:?}", target_file_name);
+    trace!("target_path={:?}", target_path);
 
     match fs::metadata(&cache_path) {
         Ok(cache) => {
-            if cache.modified()? >= fs::metadata(&exe_path)?.modified()? {
+            if cache.modified()? >= fs::metadata(&self_path)?.modified()? {
                 trace!("cache is up-to-date");
             } else {
                 trace!("cache is outdated");
-                extract(&exe_path, &cache_path)?;
+                extract(&self_path, &cache_path)?;
             }
         }
         Err(_) => {
             trace!("cache not found");
-            extract(&exe_path, &cache_path)?;
+            extract(&self_path, &cache_path)?;
         }
     }
 
-    executor::execute(&cache_path, &prog);
-    Ok(())
+    let exit_code = executor::execute(&target_path)?;
+    process::exit(exit_code);
 }
