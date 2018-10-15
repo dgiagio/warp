@@ -28,9 +28,32 @@ pub fn execute(target: &Path) -> io::Result<i32> {
     let args: Vec<String> = env::args().skip(1).collect();
     trace!("args={:?}", args);
 
-    Ok(Command::new(target_file_name)
-        .env("PATH", path_env)
+    do_execute(target_file_name, &args, &path_env)
+}
+
+#[cfg(target_family = "unix")]
+fn do_execute(target: &str, args: &[String], path_env: &str) -> io::Result<i32> {
+    Ok(Command::new(target)
         .args(args)
+        .env("PATH", path_env)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?
+        .wait()?
+        .code().unwrap_or(1))
+}
+
+#[cfg(target_family = "windows")]
+fn do_execute(target: &str, args: &[String], path_env: &str) -> io::Result<i32> {
+    let mut cmd_args = Vec::with_capacity(args.len() + 2);
+    cmd_args.push("/c".to_string());
+    cmd_args.push(target.to_string());
+    cmd_args.extend_from_slice(&args);
+
+    Ok(Command::new("cmd")
+        .args(cmd_args)
+        .env("PATH", path_env)
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
