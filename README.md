@@ -1,7 +1,171 @@
 # Warp
-Warp lets you create self-contained single binary applications making it simpler and more ergonomic to deliver your application to your customers. A self-contained binary is specially convenient when the technology you use, such as .NET Core, Java and others, contain many dependencies that must be shipped alongside your application.
+Warp lets you create self-contained single binary applications making it simpler and more ergonomic to deliver your application to your customers. A self-contained binary is specially convenient when the technology you use, such as Node.js, .NET Core, Java and others, contain many dependencies that must be shipped alongside your application.
 
 Warp is written in Rust and is supported on Linux, Windows and macOS.
+
+## Quickstart with Node.js
+### Linux
+**Create the directory for the application**
+```sh
+dgiagio@X1:~/Devel$ mkdir myapp
+dgiagio@X1:~/Devel/myapp$ cd myapp
+```
+
+**Create main application** - `app.js`
+```javascript
+var lodash = require('lodash');
+var output = lodash.without([1, 2, 3], 1);
+console.log(output);
+```
+
+**Download Node.js distribution**
+```sh
+dgiagio@X1:~/Devel/myapp$ wget https://nodejs.org/dist/v8.12.0/node-v8.12.0-linux-x64.tar.xz
+dgiagio@X1:~/Devel/myapp$ xz -dc node-v8.12.0-linux-x64.tar.xz | tar xvf -
+```
+
+**Install dependencies**
+```sh
+dgiagio@X1:~/Devel/myapp$ node-v8.12.0-linux-x64/bin/npm install lodash
+```
+
+**Remove unneeded files**
+```sh
+dgiagio@X1:~/Devel/myapp$ rm -r node-v8.12.0-linux-x64/include node-v8.12.0-linux-x64/share node-v8.12.0-linux-x64/lib
+dgiagio@X1:~/Devel/myapp$ rm node-v8.12.0-linux-x64/bin/npm node-v8.12.0-linux-x64/bin/npx
+```
+
+**Create launcher script*** - `launch`
+```sh
+#!/bin/sh
+
+NODE_DIST=node-v8.12.0-linux-x64
+APP_MAIN_JS=app.js
+
+DIR="$(cd "$(dirname "$0")" ; pwd -P)"
+NODE_EXE=$DIR/$NODE_DIST/bin/node
+NODE_PATH=$DIR/node_modules
+APP_MAIN_JS_PATH=$DIR/$APP_MAIN_JS
+
+exec $NODE_EXE $APP_MAIN_JS_PATH $@
+```
+
+**Download `warp-packer`**
+
+If you save `warp-packer` in a directory in your PATH, you only need to download it once.
+```sh
+dgiagio@X1:~/Devel/myapp$ cd ..
+dgiagio@X1:~/Devel$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/linux-x64.warp-packer
+dgiagio@X1:~/Devel$ chmod +x warp-packer
+```
+
+**Create your self-contained application**
+
+```sh
+dgiagio@X1:~/Devel$ ./warp-packer --arch linux-x64 --input_dir myapp --exec launch --output myapp.bin
+dgiagio@X1:~/Devel$ chmod +x myapp.bin
+```
+
+**Run your self-contained application**
+
+```sh
+dgiagio@X1:~/Devel$ ./myapp.bin
+[ 2, 3 ]
+dgiagio@X1:~/Devel$
+```
+
+**More information about your self-contained application**
+
+```sh
+dgiagio@X1:~/Devel/myapp$ file myapp.bin
+myapp-nodejs-linux.bin: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=aa53b01be2cde5e0b64450870b1af13b52d5cffb, with debug_info, not stripped
+
+dgiagio@X1:~/Devel/myapp$ du -hs myapp.bin
+17M     myapp.bin
+```
+
+### macOS
+**Create the directory for the application**
+```sh
+Diegos-iMac:Devel dgiagio$ mkdir myapp
+Diegos-iMac:Devel dgiagio$ cd myapp
+```
+
+**Create main application** - `app.js`
+```javascript
+var lodash = require('lodash');
+var output = lodash.without([1, 2, 3], 1);
+console.log(output);
+```
+
+**Download Node.js distribution**
+```sh
+Diegos-iMac:myapp dgiagio$ curl -Lo node-v8.12.0-darwin-x64.tar.gz https://nodejs.org/dist/v8.12.0/node-v8.12.0-darwin-x64.tar.gz
+Diegos-iMac:myapp dgiagio$ tar xvfz node-v8.12.0-darwin-x64.tar.gz
+```
+
+**Install dependencies**
+```sh
+Diegos-iMac:myapp dgiagio$ PATH=node-v8.12.0-darwin-x64/bin npm install lodash
+```
+
+**Remove unneeded files**
+```sh
+Diegos-iMac:myapp dgiagio$ rm -r node-v8.12.0-darwin-x64/include node-v8.12.0-darwin-x64/share node-v8.12.0-darwin-x64/lib
+Diegos-iMac:myapp dgiagio$ rm node-v8.12.0-darwin-x64/bin/npm node-v8.12.0-darwin-x64/bin/npx
+```
+
+**Create launcher script*** - `launch`
+```sh
+#!/bin/sh
+
+NODE_DIST=node-v8.12.0-darwin-x64
+APP_MAIN_JS=app.js
+
+DIR="$(cd "$(dirname "$0")" ; pwd -P)"
+NODE_EXE=$DIR/$NODE_DIST/bin/node
+NODE_PATH=$DIR/node_modules
+APP_MAIN_JS_PATH=$DIR/$APP_MAIN_JS
+
+exec "$NODE_EXE" "$APP_MAIN_JS_PATH" $@
+```
+
+**Download `warp-packer`**
+
+If you save `warp-packer` in a directory in your PATH, you only need to download it once.
+```sh
+Diegos-iMac:myapp dgiagio$ cd ..
+Diegos-iMac:Devel dgiagio$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/macos-x64.warp-packer
+Diegos-iMac:Devel dgiagio$ chmod +x warp-packer
+```
+
+**Create your self-contained application**
+
+```sh
+Diegos-iMac:Devel dgiagio$ ./warp-packer --arch macos-x64 --input_dir myapp --exec launch --output myapp.bin
+Diegos-iMac:Devel dgiagio$ chmod +x myapp.bin
+```
+
+**Run your self-contained application**
+
+```sh
+Diegos-iMac:Devel dgiagio$ ./myapp.bin
+[ 2, 3 ]
+Diegos-iMac:Devel dgiagio$
+```
+
+**More information about your self-contained application**
+
+```sh
+Diegos-iMac:Devel dgiagio$ file myapp.bin
+myapp-nodejs.bin: Mach-O 64-bit executable x86_64
+
+Diegos-iMac:Devel dgiagio$ du -hs myapp.bin
+26M     myapp.bin
+```
+
+### Windows
+In progress
 
 ## Quickstart with .NET Core
 ### Linux
