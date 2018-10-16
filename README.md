@@ -35,7 +35,7 @@ dgiagio@X1:~/Devel/myapp$ rm -r node-v8.12.0-linux-x64/include node-v8.12.0-linu
 dgiagio@X1:~/Devel/myapp$ rm node-v8.12.0-linux-x64/bin/npm node-v8.12.0-linux-x64/bin/npx
 ```
 
-**Create launcher script*** - `launch`
+**Create launcher script** - `launch`
 ```sh
 #!/bin/sh
 
@@ -48,6 +48,11 @@ NODE_PATH=$DIR/node_modules
 APP_MAIN_JS_PATH=$DIR/$APP_MAIN_JS
 
 exec $NODE_EXE $APP_MAIN_JS_PATH $@
+```
+
+**Make the launcher script executable**
+```sh
+dgiagio@X1:~/Devel/myapp$ chmod +x launch
 ```
 
 **Download `warp-packer`**
@@ -128,6 +133,11 @@ NODE_PATH=$DIR/node_modules
 APP_MAIN_JS_PATH=$DIR/$APP_MAIN_JS
 
 exec "$NODE_EXE" "$APP_MAIN_JS_PATH" $@
+```
+
+**Make the launcher script executable**
+```sh
+Diegos-iMac:myapp dgiagio$ chmod +x launch
 ```
 
 **Download `warp-packer`**
