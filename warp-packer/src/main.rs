@@ -90,6 +90,7 @@ fn create_tgz(dir: &Path, out: &Path) -> io::Result<()> {
     let f = fs::File::create(out)?;
     let gz = GzEncoder::new(f, Compression::best());
     let mut tar = tar::Builder::new(gz);
+    tar.follow_symlinks(false);
     tar.append_dir_all(".", dir)?;
     Ok(())
 }
