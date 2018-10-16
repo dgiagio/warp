@@ -78,7 +78,7 @@ dgiagio@X1:~/Devel$
 
 ```sh
 dgiagio@X1:~/Devel/myapp$ file myapp.bin
-myapp-nodejs-linux.bin: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=aa53b01be2cde5e0b64450870b1af13b52d5cffb, with debug_info, not stripped
+myapp.bin: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=aa53b01be2cde5e0b64450870b1af13b52d5cffb, with debug_info, not stripped
 
 dgiagio@X1:~/Devel/myapp$ du -hs myapp.bin
 17M     myapp.bin
@@ -158,7 +158,7 @@ Diegos-iMac:Devel dgiagio$
 
 ```sh
 Diegos-iMac:Devel dgiagio$ file myapp.bin
-myapp-nodejs.bin: Mach-O 64-bit executable x86_64
+myapp.bin: Mach-O 64-bit executable x86_64
 
 Diegos-iMac:Devel dgiagio$ du -hs myapp.bin
 26M     myapp.bin
