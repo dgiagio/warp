@@ -165,7 +165,80 @@ Diegos-iMac:Devel dgiagio$ du -hs myapp.bin
 ```
 
 ### Windows
-In progress
+**Create the directory for the application**
+```powershell
+PS C:\Users\Diego\Devel> mkdir myapp
+PS C:\Users\Diego\Devel> cd myapp
+```
+
+**Create main application** - `app.js`
+```javascript
+var lodash = require('lodash');
+var output = lodash.without([1, 2, 3], 1);
+console.log(output);
+```
+
+**Download Node.js distribution**
+```powershell
+PS C:\Users\Diego\Devel\myapp> curl https://nodejs.org/dist/v8.12.0/node-v8.12.0-win-x64.zip -OutFile node-v8.12.0-win-x64.zip
+PS C:\Users\Diego\Devel\myapp> Expand-Archive .\node-v8.12.0-win-x64.zip -DestinationPath .\
+```
+
+**Install dependencies**
+```powershell
+PS C:\Users\Diego\Devel\myapp> .\node-v8.12.0-win-x64\npm install lodash
+```
+
+**Remove unneeded files**
+```powershell
+PS C:\Users\Diego\Devel\myapp> rmdir -Recurse .\node-v8.12.0-win-x64\node_modules\npm
+```
+
+**Create launcher script*** - `launch.cmd`
+```bat
+@ECHO OFF
+
+SETLOCAL
+
+SET "NODE_DIST=node-v8.12.0-win-x64"
+SET "APP_MAIN_JS=app.js"
+
+SET "NODE_EXE=%~dp0\%NODE_DIST%\node.exe"
+SET "NODE_PATH=%~dp0\%NODE_DIST%\node_modules"
+SET "APP_MAIN_JS_PATH=%~dp0\%APP_MAIN_JS%"
+
+CALL %NODE_EXE% %APP_MAIN_JS_PATH% %*
+EXIT /B %ERRORLEVEL%
+```
+
+**Download `warp-packer`**
+
+If you save `warp-packer` in a directory in your PATH, you only need to download it once.
+```powershell
+PS C:\Users\Diego\Devel\myapp> cd ..
+PS C:\Users\Diego\Devel> [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" ; Invoke-WebRequest https://github.com/dgiagio/warp/releases/download/v0.2.1/windows-x64.warp-packer.exe -OutFile warp-packer.exe
+```
+
+**Create your self-contained application**
+
+```powershell
+PS C:\Users\Diego\Devel> .\warp-packer --arch windows-x64 --input_dir .\myapp\ --exec launch.cmd --output myapp.exe
+```
+
+**Run your self-contained application**
+
+```powershell
+PS C:\Users\Diego\Devel> .\myapp.exe
+[ 2, 3 ]
+PS C:\Users\Diego\Devel>
+```
+
+**More information about your self-contained application**
+
+```powershell
+PS C:\Users\Diego\Devel> "{0:N2} MB" -f ((Get-Item myapp.exe).Length / 1MB)
+9.15 MB
+```
 
 ## Quickstart with .NET Core
 ### Linux
