@@ -338,10 +338,19 @@ The extraction process only happens the first time the application is ran, or wh
 ### Performance
 The performance characteristics of the generated self-contained application is roughly the same of original application, except for the first time it's ran as the target application and its dependencies have to be decompressed to a local cache.
 
-### Cache location
-- Linux: `$HOME/.local/share/warp`
-- macOS: `$HOME/Library/Application Support/warp`
-- Windows: `%LOCALAPPDATA%\warp`
+### Packages cache location
+- Linux: `$HOME/.local/share/warp/packages`
+- macOS: `$HOME/Library/Application Support/warp/packges`
+- Windows: `%LOCALAPPDATA%\warp/packages`
+
+### Runners cache location
+- Linux: `$HOME/.local/share/warp/runners`
+- macOS: `$HOME/Library/Application Support/warp/runners`
+- Windows: `%LOCALAPPDATA%\warp\runners`
+
+## FAQ
+### `warp-packer` is unable to download the runner for my architecture because it doesn't support proxy, what can I do?
+You can manually download the runner from the GitHub releases page and save it locally to your runners cache directory. E.g. if you want to build a `linux-x64` self-contained app you should download `linux-x64.warp-runner` and save it as `<RUNNERS_CACHE>/<VERSION>/linux-x64`. Replace `<RUNNERS_CACHE>` with the [matching location in your system](#runners-cache-location) and `<VERSION>` with the matching `warp-packer -V` version.
 
 ## Authors
 - Diego Giagio `<diego@giagio.com>`
