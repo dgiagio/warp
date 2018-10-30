@@ -1,31 +1,45 @@
 extern crate clap;
 extern crate dirs;
-extern crate reqwest;
-extern crate tempdir;
-extern crate tar;
 extern crate flate2;
+#[macro_use]
+extern crate lazy_static;
+extern crate reqwest;
+extern crate tar;
+extern crate tempdir;
 
 use clap::{App, AppSettings, Arg};
-use std::process;
-use std::path::PathBuf;
-use std::fs;
-use std::io::copy;
-use tempdir::TempDir;
-use std::path::Path;
-use std::io;
-use std::error::Error;
-use std::io::Write;
-use std::io::Read;
-use flate2::write::GzEncoder;
 use flate2::Compression;
+use flate2::write::GzEncoder;
+use std::collections::HashMap;
+use std::error::Error;
+use std::fs;
+use std::fs::File;
+use std::io;
+use std::io::copy;
+use std::io::Write;
+use std::path::Path;
+use std::process;
+use tempdir::TempDir;
 
 const APP_NAME: &str = env!("CARGO_PKG_NAME");
 const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const SUPPORTED_ARCHS: &[&str] = &["linux-x64", "windows-x64", "macos-x64"];
-const RUNNER_URL_TEMPLATE: &str = "https://github.com/dgiagio/warp/releases/download/v$VERSION$/$ARCH$.warp-runner";
 const RUNNER_MAGIC: &[u8] = b"tVQhhsFFlGGD3oWV4lEPST8I8FEPP54IM0q7daes4E1y3p2U2wlJRYmWmjPYfkhZ0PlT14Ls0j8fdDkoj33f2BlRJavLj3mWGibJsGt5uLAtrCDtvxikZ8UX2mQDCrgE\0";
+
+const RUNNER_LINUX_X64: &[u8] = include_bytes!("../../target/x86_64-unknown-linux-gnu/release/warp-runner");
+const RUNNER_MACOS_X64: &[u8] = include_bytes!("../../target/x86_64-apple-darwin/release/warp-runner");
+const RUNNER_WINDOWS_X64: &[u8] = include_bytes!("../../target/x86_64-pc-windows-gnu/release/warp-runner.exe");
+
+lazy_static! {
+    static ref RUNNER_BY_ARCH: HashMap<&'static str, &'static [u8]> = {
+        let mut m = HashMap::new();
+        m.insert("linux-x64", RUNNER_LINUX_X64);
+        m.insert("macos-x64", RUNNER_MACOS_X64);
+        m.insert("windows-x64", RUNNER_WINDOWS_X64);
+        m
+    };
+}
 
 /// Print a message to stderr and exit with error code 1
 macro_rules! bail {
@@ -36,26 +50,10 @@ macro_rules! bail {
     })
 }
 
-fn runners_dir() -> PathBuf {
-    dirs::data_local_dir()
-        .expect("No data local dir found")
-        .join("warp")
-        .join("runners")
-        .join(VERSION)
-}
-
-fn runner_url(arch: &str) -> String {
-    let ext = if cfg!(target_family = "windows") { ".exe" } else { "" };
-    RUNNER_URL_TEMPLATE
-        .replace("$VERSION$", VERSION)
-        .replace("$ARCH$", arch) + ext
-}
-
-fn patch_runner(runner_exec: &Path, new_runner_exec: &Path, exec_name: &str) -> io::Result<()> {
+fn patch_runner(arch: &str, exec_name: &str) -> io::Result<Vec<u8>> {
     // Read runner executable in memory
-    let mut buf = vec![];
-    fs::File::open(runner_exec)?
-        .read_to_end(&mut buf)?;
+    let runner_contents = RUNNER_BY_ARCH.get(arch).unwrap();
+    let mut buf = runner_contents.to_vec();
 
     // Set the correct target executable name into the local magic buffer
     let magic_len = RUNNER_MAGIC.len();
@@ -72,18 +70,14 @@ fn patch_runner(runner_exec: &Path, new_runner_exec: &Path, exec_name: &str) -> 
     }
 
     if offs_opt.is_none() {
-        return Err(io::Error::new(io::ErrorKind::Other, "no magic found inside runner"))
+        return Err(io::Error::new(io::ErrorKind::Other, "no magic found inside runner"));
     }
 
     // Replace the magic with the new one that points to the target executable
     let offs = offs_opt.unwrap();
     buf[offs..offs + magic_len].clone_from_slice(&new_magic);
 
-    // Write patched runner to disk
-    fs::File::create(&new_runner_exec)?
-        .write_all(&buf)?;
-
-    Ok(())
+    Ok(buf)
 }
 
 fn create_tgz(dir: &Path, out: &Path) -> io::Result<()> {
@@ -95,11 +89,29 @@ fn create_tgz(dir: &Path, out: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn create_app(runner_exec: &Path, tgz_path: &Path, out: &Path) -> io::Result<()> {
-    let mut outf = fs::File::create(out)?;
-    let mut runnerf = fs::File::open(runner_exec)?;
+#[cfg(target_family = "unix")]
+fn create_app_file(out: &Path) -> io::Result<File> {
+    use std::os::unix::fs::OpenOptionsExt;
+
+    fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .mode(0o755)
+        .open(out)
+}
+
+#[cfg(target_family = "windows")]
+fn create_app_file(out: &Path) -> io::Result<File> {
+    fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(out)
+}
+
+fn create_app(runner_buf: &Vec<u8>, tgz_path: &Path, out: &Path) -> io::Result<()> {
+    let mut outf = create_app_file(out)?;
     let mut tgzf = fs::File::open(tgz_path)?;
-    copy(&mut runnerf, &mut outf)?;
+    outf.write_all(runner_buf)?;
     copy(&mut tgzf, &mut outf)?;
     Ok(())
 }
@@ -114,7 +126,7 @@ fn main() -> Result<(), Box<Error>> {
             .short("a")
             .long("arch")
             .value_name("arch")
-            .help(&format!("Sets the architecture. Supported: {:?}", SUPPORTED_ARCHS))
+            .help(&format!("Sets the architecture. Supported: {:?}", RUNNER_BY_ARCH.keys()))
             .display_order(1)
             .takes_value(true)
             .required(true))
@@ -145,8 +157,8 @@ fn main() -> Result<(), Box<Error>> {
         .get_matches();
 
     let arch = args.value_of("arch").unwrap();
-    if !SUPPORTED_ARCHS.contains(&arch) {
-        bail!("Unknown architecture specified: {}, supported: {:?}", arch, SUPPORTED_ARCHS);
+    if !RUNNER_BY_ARCH.contains_key(&arch) {
+        bail!("Unknown architecture specified: {}, supported: {:?}", arch, RUNNER_BY_ARCH.keys());
     }
 
     let input_dir = Path::new(args.value_of("input_dir").unwrap());
@@ -163,7 +175,7 @@ fn main() -> Result<(), Box<Error>> {
     match fs::metadata(&exec_path) {
         Err(_) => {
             bail!("Cannot find file {:?}", exec_path);
-        },
+        }
         Ok(metadata) => {
             if !metadata.is_file() {
                 bail!("{:?} isn't a file", exec_path);
@@ -171,29 +183,16 @@ fn main() -> Result<(), Box<Error>> {
         }
     }
 
-    let runners_dir = runners_dir();
-    fs::create_dir_all(&runners_dir)?;
-
-    let runner_exec = runners_dir.join(arch);
-    if !runner_exec.exists() {
-        let url = runner_url(arch);
-        println!("Downloading runner from {}...", url);
-        let mut response = reqwest::get(&url)?.error_for_status()?;
-        let mut f = fs::File::create(&runner_exec)?;
-        copy(&mut response, &mut f)?;
-    }
-
-    let tmp_dir = TempDir::new(APP_NAME)?;
-    let new_runner_exec = tmp_dir.path().join("runner");
-    patch_runner(&runner_exec, &new_runner_exec, &exec_name)?;
+    let runner_buf = patch_runner(&arch, &exec_name)?;
 
     println!("Compressing input directory {:?}...", input_dir);
+    let tmp_dir = TempDir::new(APP_NAME)?;
     let tgz_path = tmp_dir.path().join("input.tgz");
     create_tgz(&input_dir, &tgz_path)?;
 
     let exec_name = Path::new(args.value_of("output").unwrap());
     println!("Creating self-contained application binary {:?}...", exec_name);
-    create_app(&new_runner_exec, &tgz_path, &exec_name)?;
+    create_app(&runner_buf, &tgz_path, &exec_name)?;
 
     println!("All done");
     Ok(())
