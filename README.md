@@ -60,7 +60,7 @@ dgiagio@X1:~/Devel/myapp$ chmod +x launch
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```sh
 dgiagio@X1:~/Devel/myapp$ cd ..
-dgiagio@X1:~/Devel$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/linux-x64.warp-packer
+dgiagio@X1:~/Devel$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/linux-x64.warp-packer
 dgiagio@X1:~/Devel$ chmod +x warp-packer
 ```
 
@@ -145,7 +145,7 @@ Diegos-iMac:myapp dgiagio$ chmod +x launch
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```sh
 Diegos-iMac:myapp dgiagio$ cd ..
-Diegos-iMac:Devel dgiagio$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/macos-x64.warp-packer
+Diegos-iMac:Devel dgiagio$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/macos-x64.warp-packer
 Diegos-iMac:Devel dgiagio$ chmod +x warp-packer
 ```
 
@@ -226,7 +226,7 @@ EXIT /B %ERRORLEVEL%
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```powershell
 PS C:\Users\Diego\Devel\myapp> cd ..
-PS C:\Users\Diego\Devel> [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" ; Invoke-WebRequest https://github.com/dgiagio/warp/releases/download/v0.2.1/windows-x64.warp-packer.exe -OutFile warp-packer.exe
+PS C:\Users\Diego\Devel> [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" ; Invoke-WebRequest https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe -OutFile warp-packer.exe
 ```
 
 **Create your self-contained application**
@@ -274,7 +274,7 @@ The application should be published to `bin/Release/netcoreapp2.1/linux-x64/publ
 
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```sh
-dgiagio@X1:~/Devel/myapp$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/linux-x64.warp-packer
+dgiagio@X1:~/Devel/myapp$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/linux-x64.warp-packer
 dgiagio@X1:~/Devel/myapp$ chmod +x warp-packer
 ```
 
@@ -326,7 +326,7 @@ The application should be published to `bin/Release/netcoreapp2.1/osx-x64/publis
 
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```sh
-Diegos-iMac:myapp dgiagio$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.2.1/macos-x64.warp-packer
+Diegos-iMac:myapp dgiagio$ curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/macos-x64.warp-packer
 Diegos-iMac:myapp dgiagio$ chmod +x warp-packer
 ```
 
@@ -378,7 +378,7 @@ The application should be published to `bin/Release/netcoreapp2.1/win10-x64/publ
 
 If you save `warp-packer` in a directory in your PATH, you only need to download it once.
 ```powershell
-PS C:\Users\Diego\Devel\myapp> [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" ; Invoke-WebRequest https://github.com/dgiagio/warp/releases/download/v0.2.1/windows-x64.warp-packer.exe -OutFile warp-packer.exe
+PS C:\Users\Diego\Devel\myapp> [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls" ; Invoke-WebRequest https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe -OutFile warp-packer.exe
 ```
 
 **Create your self-contained application**
