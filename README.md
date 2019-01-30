@@ -421,7 +421,108 @@ PS C:\Users\Diego\Devel\myapp> "{0:N2} MB" -f ((Get-Item myapp.exe).Length / 1MB
 ```
 
 ## Quickstart with Java
-_In progress_
+### Linux
+
+**Create a Hello World application**
+
+Create `HelloWorld.java`: 
+
+```java
+// HelloWorld.java
+public final class HelloWorld {
+  public static void main(final String[] args) {
+    System.out.println("Hello, world. ");
+  }
+}
+```
+
+Test that it works: 
+
+```bash
+$ javac HelloWorld.java
+$ java HelloWorld
+Hello, world.
+```
+
+We need to bundle this as a `.jar`:
+
+```bash
+$ jar cvfe app.jar HelloWorld HelloWorld.class
+added manifest
+adding: HelloWorld.class(in = 428) (out= 290)(deflated 32%)
+$ java -jar app.jar
+Hello, world.
+```
+
+**Download a JRE**
+
+There are prebuilt JREs over on [AdoptOpenJDK](https://adoptopenjdk.net). 
+
+Here we use JRE 8:
+
+```
+wget -N https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_x64_linux_hotspot_8u202b08.tar.gz
+```
+
+Unpack it: 
+
+```
+tar -xvf OpenJDK8U-jre_x64_linux_hotspot_8u202b08.tar.gz
+```
+
+**Create a bundle**
+
+We need to create a folder containing: our compiled code, the JRE and a launch script. 
+
+```
+mkdir bundle
+cp -r ./jdk8u202-b08-jre ./bundle/jre
+cp app.jar ./bundle/app.jar
+touch bundle/run.sh
+chmod +x ./bundle/run.sh 
+```
+
+Finally, we to write `run.sh`. This script will run our `.jar` using the bundled JRE.
+
+Here are the contents of `./bundle/run.sh`:
+
+```bash
+#!/usr/bin/env bash
+
+HERE=${BASH_SOURCE%/*}
+
+"$HERE/jre/bin/java" -jar "$HERE/app.jar" "$@"
+```
+
+Test the bundle: 
+
+```bash
+$ ./bundle/run.sh 
+Hello, world. 
+```
+
+**Download `warp-packer`**
+
+If you save `warp-packer` in a directory in your PATH, you only need to download it once.
+
+```bash
+$ wget -O warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/linux-x64.warp-packer
+$ chmod +x ./warp-packer
+```
+
+**Create your self-contained application**
+
+```bash
+$ ./warp-packer --arch linux-x64 --input_dir bundle --exec run.sh --output app.bin
+$ chmod +x app.bin
+```
+
+**Run your self-contained application**
+
+```bash
+$ ./app.bin 
+Hello, world. 
+```
 
 ## How it works
 Warp is a multi-platform tool written in Rust and is comprised of two programs: `warp-runner` and `warp-packer`.
@@ -454,3 +555,8 @@ The performance characteristics of the generated self-contained application is r
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Who is Using Warp? 
+
+ * Buckaroo, the C++ package manager https://github.com/loopperfect/buckaroo
+ * Buck, the build system https://github.com/njlr/buck-warp
